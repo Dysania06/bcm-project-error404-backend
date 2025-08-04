@@ -1,5 +1,4 @@
 CREATE DATABASE csdl_bit;
-drop database csdl_bit
 CREATE TABLE csdl_bit.Users (
   id varchar(50) PRIMARY KEY,
   username varchar(50),
