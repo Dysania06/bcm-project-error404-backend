@@ -1,0 +1,32 @@
+bcm-project-error404-backend/
+├── .env
+├── .gitignore
+├── app.py
+├── requirements.txt
+├── config.py
+├── controllers/
+│   ├── __init__.py
+│   ├── user_controller.py
+│   ├── document_controller.py
+│   ├── post_controller.py
+│   ├── rating_controller.py
+│   ├── tag_controller.py
+│   ├── comment_controller.py          
+│   ├── post_tag_controller.py         
+│   ├── document_tag_controller.py     
+│   └── bookmark_controller.py        
+├── models/
+│   ├── __init__.py
+│   ├── user_model.py
+│   ├── document_model.py
+│   ├── post_model.py
+│   ├── rating_model.py
+│   ├── tag_model.py
+│   ├── comment_model.py               
+│   ├── post_tag_model.py              
+│   ├── document_tag_model.py          
+│   └── bookmark_model.py              
+├── tests/                             
+│   ├── test_user.py
+│   └── test_document.py
+└── migrations/                        
