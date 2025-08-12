@@ -1,7 +1,0 @@
-bcm-project-error404-backend/
-├── .env
-├── app.py
-├── config.py
-├── controllers/
-├── models/
-└── requirements.txtments.txt
