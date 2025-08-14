@@ -5,7 +5,7 @@ class Comment(db.Model):
 
     comment_id = db.Column(db.String(50), primary_key=True)
     content = db.Column(db.Text)
-    commented_by = db.Column(db.String(50), db.ForeignKey('users.user_id'))
+    commented_by = db.Column(db.String(50), db.ForeignKey('users.id'))
     post_id = db.Column(db.String(50), db.ForeignKey('posts.post_id'))
     document_id = db.Column(db.String(50), db.ForeignKey('documents.document_id'))
 

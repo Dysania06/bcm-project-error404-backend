@@ -6,7 +6,7 @@ class Rating(BaseModel):
     __tablename__ = 'ratings'
     rating_id = db.Column(db.String(50), primary_key=True)
     star_rating = db.Column(db.Integer)
-    rated_by = db.Column(db.String(50), db.ForeignKey('users.user_id'))
+    rated_by = db.Column(db.String(50), db.ForeignKey('users.id'))
     document_id = db.Column(db.String(50), db.ForeignKey('documents.document_id'))
 
     def to_json(self):

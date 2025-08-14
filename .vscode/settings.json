@@ -12,7 +12,7 @@
             "name": "MySQL local",
             "database": "csdl_bit",
             "username": "root",
-            "password": "chien19102006@",
+            "password": "nguyenchien19102006@",
             "connectionTimeout": 30
         }
     ]

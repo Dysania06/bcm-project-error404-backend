@@ -12,8 +12,6 @@ class User(BaseModel):
     age = db.Column(db.Integer)
     department = db.Column(db.String(50))
     
-    # Chúng ta bỏ các cột created_at, updated_at vì lược đồ SQL không có
-    
     def to_json(self):
         return {
             'id': self.id,

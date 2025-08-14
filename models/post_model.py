@@ -7,7 +7,7 @@ class Post(BaseModel):
     post_id = db.Column(db.String(50), primary_key=True)
     title = db.Column(db.Text)
     content = db.Column(db.Text)
-    posted_by = db.Column(db.String(50), db.ForeignKey('users.user_id'))
+    posted_by = db.Column(db.String(50), db.ForeignKey('users.id'))
 
     def to_json(self):
         return {
