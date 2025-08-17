@@ -20,5 +20,5 @@ class Comment(db.Model):
             "created_at": self.created_at,
             "user_id": self.user_id,
             "post_id": self.post_id,
-            "document_id": self.document_id
+            "document_id": self.document_id,
         }

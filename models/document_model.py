@@ -1,5 +1,6 @@
 import uuid
 from models.models import db
+from models.documents_tags_model import DocumentTag
 
 class Document(db.Model):
     __tablename__ = "documents"
@@ -8,8 +9,11 @@ class Document(db.Model):
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=True)
     file_path = db.Column(db.String(255), nullable=True)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    upload_date = db.Column(db.DateTime, server_default=db.func.now()) # Ngày tải lên
+    update_date = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+     # Quan hệ nhiều-nhiều với Tag
+    tags = db.relationship("DocumentTag", back_populates="document", cascade="all, delete-orphan")
 
     # Khóa ngoại
     user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
@@ -24,7 +28,7 @@ class Document(db.Model):
             "title": self.title,
             "content": self.content,
             "file_path": self.file_path,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
+            "upload_date": self.upload_date,
+            "update_date": self.update_date,
             "user_id": self.user_id,
         }
