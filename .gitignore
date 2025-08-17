@@ -8,3 +8,7 @@ instance/
 
 # Windows rác
 Thumbs.db.env
+
+# bỏ qua các tập tin cấu hình IDE
+.vscode/
+.idea/
