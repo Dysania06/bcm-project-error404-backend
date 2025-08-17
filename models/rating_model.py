@@ -1,18 +1,20 @@
-# File: models/rating_model.py
-from models.base_model import BaseModel
+import uuid
 from models.models import db
 
-class Rating(BaseModel):
-    __tablename__ = 'ratings'
-    rating_id = db.Column(db.String(50), primary_key=True)
-    star_rating = db.Column(db.Integer)
-    rated_by = db.Column(db.String(50), db.ForeignKey('users.id'))
-    document_id = db.Column(db.String(50), db.ForeignKey('documents.document_id'))
+class Rating(db.Model):
+    __tablename__ = "ratings"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    score = db.Column(db.Integer, nullable=False)
+
+    # Khóa ngoại
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    document_id = db.Column(db.String(36), db.ForeignKey("documents.id"), nullable=False)
 
     def to_json(self):
         return {
-            'rating_id': self.rating_id,
-            'star_rating': self.star_rating,
-            'rated_by': self.rated_by,
-            'document_id': self.document_id
+            "id": self.id,
+            "score": self.score,
+            "user_id": self.user_id,
+            "document_id": self.document_id
         }

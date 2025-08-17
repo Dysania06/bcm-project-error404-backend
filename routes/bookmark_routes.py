@@ -1,28 +1,39 @@
 from flask import Blueprint, request, jsonify
-from models.bookmark_model import Bookmark
-from schemas.bookmark_schema import bookmark_schema, bookmarks_schema
+from controllers.bookmark_controller import BookmarkController
 
-bookmark_bp = Blueprint('bookmark_bp', __name__)
+bookmark_bp = Blueprint("bookmark_bp", __name__, url_prefix="/bookmarks")
 
-@bookmark_bp.route('/bookmarks', methods=['GET'])
+@bookmark_bp.route("/", methods=["GET"])
 def get_bookmarks():
-    return jsonify(bookmarks_schema.dump(Bookmark.get_all()))
+    bookmarks = BookmarkController.get_all()
+    return jsonify([b.to_json() for b in bookmarks]), 200
 
-@bookmark_bp.route('/bookmarks/<string:document_id>/<string:user_id>', methods=['GET'])
-def get_bookmark(document_id, user_id):
-    bookmark = Bookmark.query.get((document_id, user_id))
-    return jsonify(bookmark_schema.dump(bookmark)) if bookmark else (jsonify({'message': 'Bookmark not found'}), 404)
-
-@bookmark_bp.route('/bookmarks', methods=['POST'])
-def create_bookmark():
-    new_bookmark = Bookmark(**request.get_json())
-    new_bookmark.save_to_db()
-    return jsonify(bookmark_schema.dump(new_bookmark)), 201
-
-@bookmark_bp.route('/bookmarks/<string:document_id>/<string:user_id>', methods=['DELETE'])
-def delete_bookmark(document_id, user_id):
-    bookmark = Bookmark.query.get((document_id, user_id))
+@bookmark_bp.route("/<bookmark_id>", methods=["GET"])
+def get_bookmark(bookmark_id):
+    bookmark = BookmarkController.get_by_id(bookmark_id)
     if not bookmark:
-        return jsonify({'message': 'Bookmark not found'}), 404
-    bookmark.delete_from_db()
-    return jsonify({'message': 'Bookmark deleted successfully'})
+        return jsonify({"message": "Bookmark not found"}), 404
+    return jsonify(bookmark.to_json()), 200
+
+@bookmark_bp.route("/", methods=["POST"])
+def create_bookmark():
+    data = request.json
+    bookmark = BookmarkController.create(data)
+    return jsonify(bookmark.to_json()), 201
+
+@bookmark_bp.route("/<bookmark_id>", methods=["PUT"])
+def update_bookmark(bookmark_id):
+    bookmark = BookmarkController.get_by_id(bookmark_id)
+    if not bookmark:
+        return jsonify({"message": "Bookmark not found"}), 404
+    data = request.json
+    bookmark = BookmarkController.update(bookmark, data)
+    return jsonify(bookmark.to_json()), 200
+
+@bookmark_bp.route("/<bookmark_id>", methods=["DELETE"])
+def delete_bookmark(bookmark_id):
+    bookmark = BookmarkController.get_by_id(bookmark_id)
+    if not bookmark:
+        return jsonify({"message": "Bookmark not found"}), 404
+    BookmarkController.delete(bookmark)
+    return jsonify({"message": "Bookmark deleted"}), 200

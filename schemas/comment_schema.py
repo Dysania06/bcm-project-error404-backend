@@ -1,4 +1,4 @@
-from . import ma
+from schemas import ma
 from models.comment_model import Comment
 
 class CommentSchema(ma.SQLAlchemyAutoSchema):

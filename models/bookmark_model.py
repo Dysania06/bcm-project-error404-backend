@@ -1,19 +1,16 @@
-# File: models/bookmark_model.py
-from models.base_model import BaseModel
+import uuid
 from models.models import db
 
-class Bookmark(BaseModel):
-    __tablename__ = 'bookmarks'
-    bookmark_id = db.Column(db.String(50), primary_key=True)
-    post_id = db.Column(db.String(50), db.ForeignKey('posts.post_id'))
-    bookmarked_by = db.Column(db.String(50), db.ForeignKey('users.id'))
-    
-    post = db.relationship('Post', backref='bookmarks')
-    user = db.relationship('User', backref='bookmarks')
+class Bookmark(db.Model):
+    __tablename__ = "bookmarks"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    document_id = db.Column(db.String(36), db.ForeignKey("documents.id"), nullable=False)
 
     def to_json(self):
         return {
-            'bookmark_id': self.bookmark_id,
-            'post_id': self.post_id,
-            'bookmarked_by': self.bookmarked_by
+            "id": self.id,
+            "user_id": self.user_id,
+            "document_id": self.document_id
         }

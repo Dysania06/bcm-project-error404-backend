@@ -1,4 +1,4 @@
-from . import ma
+from schemas import ma
 from models.post_model import Post
 
 class PostSchema(ma.SQLAlchemyAutoSchema):

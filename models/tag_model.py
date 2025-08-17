@@ -1,14 +1,14 @@
-# File: models/tag_model.py
-from models.base_model import BaseModel
+import uuid
 from models.models import db
 
-class Tag(BaseModel):
-    __tablename__ = 'tags'
-    tag_id = db.Column(db.String(50), primary_key=True)
-    nameposts_tags = db.Column(db.String(100), unique=True, nullable=False)
+class Tag(db.Model):
+    __tablename__ = "tags"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(50), unique=True, nullable=False)
 
     def to_json(self):
         return {
-            'tag_id': self.tag_id,
-            'nameposts_tags': self.tag_name
+            "id": self.id,
+            "name": self.name
         }

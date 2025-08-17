@@ -1,4 +1,4 @@
-from . import ma
+from schemas import ma
 from models.document_model import Document
 
 class DocumentSchema(ma.SQLAlchemyAutoSchema):

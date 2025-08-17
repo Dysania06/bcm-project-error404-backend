@@ -1,44 +1,39 @@
 from flask import Blueprint, request, jsonify
-from models.user_model import User
-from models.models import db
-from schemas.user_schema import user_schema, users_schema
+from controllers.user_controller import UserController
 
-user_bp = Blueprint('user_bp', __name__)
+user_bp = Blueprint('user_bp', __name__, url_prefix="/users")
 
-@user_bp.route('/users', methods=['GET'])
+@user_bp.route("/", methods=["GET"])
 def get_users():
-    users = User.get_all()
-    return jsonify(users_schema.dump(users))
+    users = UserController.get_all()
+    return jsonify([u.to_json() for u in users]), 200
 
-@user_bp.route('/users/<string:id>', methods=['GET'])
-def get_user(id):
-    user = User.get_by_id(id)
-    if user:
-        return jsonify(user_schema.dump(user))
-    return jsonify({'message': 'User not found'}), 404
+@user_bp.route("/<user_id>", methods=["GET"])
+def get_user(user_id):
+    user = UserController.get_by_id(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    return jsonify(user.to_json()), 200
 
-@user_bp.route('/users', methods=['POST'])
+@user_bp.route("/", methods=["POST"])
 def create_user():
-    data = request.get_json()
-    new_user = User(**data)
-    new_user.save_to_db()
-    return jsonify(user_schema.dump(new_user)), 201
+    data = request.json
+    user = UserController.create(data)
+    return jsonify(user.to_json()), 201
 
-@user_bp.route('/users/<string:id>', methods=['PUT'])
-def update_user(id):
-    user = User.get_by_id(id)
-    if user:
-        data = request.get_json()
-        for key, value in data.items():
-            setattr(user, key, value)
-        user.save_to_db()
-        return jsonify(user_schema.dump(user))
-    return jsonify({'message': 'User not found'}), 404
+@user_bp.route("/<user_id>", methods=["PUT"])
+def update_user(user_id):
+    user = UserController.get_by_id(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    data = request.json
+    user = UserController.update(user, data)
+    return jsonify(user.to_json()), 200
 
-@user_bp.route('/users/<string:id>', methods=['DELETE'])
-def delete_user(id):
-    user = User.get_by_id(id)
-    if user:
-        user.delete_from_db()
-        return jsonify({'message': 'User deleted successfully'})
-    return jsonify({'message': 'User not found'}), 404
+@user_bp.route("/<user_id>", methods=["DELETE"])
+def delete_user(user_id):
+    user = UserController.get_by_id(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    UserController.delete(user)
+    return jsonify({"message": "User deleted"}), 200

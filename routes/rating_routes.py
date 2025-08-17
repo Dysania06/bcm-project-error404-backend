@@ -1,38 +1,39 @@
 from flask import Blueprint, request, jsonify
-from models.rating_model import Rating
-from schemas.rating_schema import rating_schema, ratings_schema
+from controllers.rating_controller import RatingController
 
-rating_bp = Blueprint('rating_bp', __name__)
+rating_bp = Blueprint("rating_bp", __name__, url_prefix="/ratings")
 
-@rating_bp.route('/ratings', methods=['GET'])
+@rating_bp.route("/", methods=["GET"])
 def get_ratings():
-    return jsonify(ratings_schema.dump(Rating.get_all()))
+    ratings = RatingController.get_all()
+    return jsonify([r.to_json() for r in ratings]), 200
 
-@rating_bp.route('/ratings/<string:id>', methods=['GET'])
-def get_rating(id):
-    rating = Rating.get_by_id(id)
-    return jsonify(rating_schema.dump(rating)) if rating else (jsonify({'message': 'Rating not found'}), 404)
+@rating_bp.route("/<rating_id>", methods=["GET"])
+def get_rating(rating_id):
+    rating = RatingController.get_by_id(rating_id)
+    if not rating:
+        return jsonify({"message": "Rating not found"}), 404
+    return jsonify(rating.to_json()), 200
 
-@rating_bp.route('/ratings', methods=['POST'])
+@rating_bp.route("/", methods=["POST"])
 def create_rating():
-    new_rating = Rating(**request.get_json())
-    new_rating.save_to_db()
-    return jsonify(rating_schema.dump(new_rating)), 201
+    data = request.json
+    rating = RatingController.create(data)
+    return jsonify(rating.to_json()), 201
 
-@rating_bp.route('/ratings/<string:id>', methods=['PUT'])
-def update_rating(id):
-    rating = Rating.get_by_id(id)
+@rating_bp.route("/<rating_id>", methods=["PUT"])
+def update_rating(rating_id):
+    rating = RatingController.get_by_id(rating_id)
     if not rating:
-        return jsonify({'message': 'Rating not found'}), 404
-    for k, v in request.get_json().items():
-        setattr(rating, k, v)
-    rating.save_to_db()
-    return jsonify(rating_schema.dump(rating))
+        return jsonify({"message": "Rating not found"}), 404
+    data = request.json
+    rating = RatingController.update(rating, data)
+    return jsonify(rating.to_json()), 200
 
-@rating_bp.route('/ratings/<string:id>', methods=['DELETE'])
-def delete_rating(id):
-    rating = Rating.get_by_id(id)
+@rating_bp.route("/<rating_id>", methods=["DELETE"])
+def delete_rating(rating_id):
+    rating = RatingController.get_by_id(rating_id)
     if not rating:
-        return jsonify({'message': 'Rating not found'}), 404
-    rating.delete_from_db()
-    return jsonify({'message': 'Rating deleted successfully'})
+        return jsonify({"message": "Rating not found"}), 404
+    RatingController.delete(rating)
+    return jsonify({"message": "Rating deleted"}), 200

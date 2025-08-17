@@ -1,28 +1,21 @@
-from flask import Blueprint, request, jsonify
-from models.documents_tags_model import DocumentsTags
-from schemas.documents_tags_schema import document_tag_schema, documents_tags_schema
+# routes/documents_tags_routes.py
+from flask import Blueprint, jsonify
+from controllers.documents_tags_controller import DocumentsTagsController
 
-documents_tags_bp = Blueprint('documents_tags_bp', __name__)
+documents_tags_bp = Blueprint("documents_tags", __name__, url_prefix="/documents_tags")
 
-@documents_tags_bp.route('/documents_tags', methods=['GET'])
-def get_documents_tags():
-    return jsonify(documents_tags_schema.dump(DocumentsTags.get_all()))
+@documents_tags_bp.route("/<int:document_id>/tags/<int:tag_id>", methods=["POST"])
+def add_tag_to_document(document_id, tag_id):
+    return jsonify(DocumentsTagsController.add_tag_to_document(document_id, tag_id))
 
-@documents_tags_bp.route('/documents_tags/<string:document_id>/<string:tag_id>', methods=['GET'])
-def get_document_tag(document_id, tag_id):
-    doc_tag = DocumentsTags.query.get((document_id, tag_id))
-    return jsonify(document_tag_schema.dump(doc_tag)) if doc_tag else (jsonify({'message': 'Document Tag not found'}), 404)
+@documents_tags_bp.route("/<int:document_id>/tags/<int:tag_id>", methods=["DELETE"])
+def remove_tag_from_document(document_id, tag_id):
+    return jsonify(DocumentsTagsController.remove_tag_from_document(document_id, tag_id))
 
-@documents_tags_bp.route('/documents_tags', methods=['POST'])
-def create_document_tag():
-    new_doc_tag = DocumentsTags(**request.get_json())
-    new_doc_tag.save_to_db()
-    return jsonify(document_tag_schema.dump(new_doc_tag)), 201
+@documents_tags_bp.route("/<int:document_id>/tags", methods=["GET"])
+def get_tags_of_document(document_id):
+    return jsonify(DocumentsTagsController.get_tags_of_document(document_id))
 
-@documents_tags_bp.route('/documents_tags/<string:document_id>/<string:tag_id>', methods=['DELETE'])
-def delete_document_tag(document_id, tag_id):
-    doc_tag = DocumentsTags.query.get((document_id, tag_id))
-    if not doc_tag:
-        return jsonify({'message': 'Document Tag not found'}), 404
-    doc_tag.delete_from_db()
-    return jsonify({'message': 'Document Tag deleted successfully'})
+@documents_tags_bp.route("/tags/<int:tag_id>/documents", methods=["GET"])
+def get_documents_of_tag(tag_id):
+    return jsonify(DocumentsTagsController.get_documents_of_tag(tag_id))

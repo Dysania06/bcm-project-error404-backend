@@ -1,38 +1,39 @@
 from flask import Blueprint, request, jsonify
-from models.document_model import Document
-from schemas.document_schema import document_schema, documents_schema
+from controllers.document_controller import DocumentController
 
-document_bp = Blueprint('document_bp', __name__)
+document_bp = Blueprint("document_bp", __name__, url_prefix="/documents")
 
-@document_bp.route('/documents', methods=['GET'])
+@document_bp.route("/", methods=["GET"])
 def get_documents():
-    return jsonify(documents_schema.dump(Document.get_all()))
+    documents = DocumentController.get_all()
+    return jsonify([d.to_json() for d in documents]), 200
 
-@document_bp.route('/documents/<string:id>', methods=['GET'])
-def get_document(id):
-    document = Document.get_by_id(id)
-    return jsonify(document_schema.dump(document)) if document else (jsonify({'message': 'Document not found'}), 404)
+@document_bp.route("/<document_id>", methods=["GET"])
+def get_document(document_id):
+    document = DocumentController.get_by_id(document_id)
+    if not document:
+        return jsonify({"message": "Document not found"}), 404
+    return jsonify(document.to_json()), 200
 
-@document_bp.route('/documents', methods=['POST'])
+@document_bp.route("/", methods=["POST"])
 def create_document():
-    new_document = Document(**request.get_json())
-    new_document.save_to_db()
-    return jsonify(document_schema.dump(new_document)), 201
+    data = request.json
+    document = DocumentController.create(data)
+    return jsonify(document.to_json()), 201
 
-@document_bp.route('/documents/<string:id>', methods=['PUT'])
-def update_document(id):
-    document = Document.get_by_id(id)
+@document_bp.route("/<document_id>", methods=["PUT"])
+def update_document(document_id):
+    document = DocumentController.get_by_id(document_id)
     if not document:
-        return jsonify({'message': 'Document not found'}), 404
-    for k, v in request.get_json().items():
-        setattr(document, k, v)
-    document.save_to_db()
-    return jsonify(document_schema.dump(document))
+        return jsonify({"message": "Document not found"}), 404
+    data = request.json
+    document = DocumentController.update(document, data)
+    return jsonify(document.to_json()), 200
 
-@document_bp.route('/documents/<string:id>', methods=['DELETE'])
-def delete_document(id):
-    document = Document.get_by_id(id)
+@document_bp.route("/<document_id>", methods=["DELETE"])
+def delete_document(document_id):
+    document = DocumentController.get_by_id(document_id)
     if not document:
-        return jsonify({'message': 'Document not found'}), 404
-    document.delete_from_db()
-    return jsonify({'message': 'Document deleted successfully'})
+        return jsonify({"message": "Document not found"}), 404
+    DocumentController.delete(document)
+    return jsonify({"message": "Document deleted"}), 200

@@ -1,38 +1,39 @@
 from flask import Blueprint, request, jsonify
-from models.tag_model import Tag
-from schemas.tag_schema import tag_schema, tags_schema
+from controllers.tag_controller import TagController
 
-tag_bp = Blueprint('tag_bp', __name__)
+tag_bp = Blueprint("tag_bp", __name__, url_prefix="/tags")
 
-@tag_bp.route('/tags', methods=['GET'])
+@tag_bp.route("/", methods=["GET"])
 def get_tags():
-    return jsonify(tags_schema.dump(Tag.get_all()))
+    tags = TagController.get_all()
+    return jsonify([t.to_json() for t in tags]), 200
 
-@tag_bp.route('/tags/<string:id>', methods=['GET'])
-def get_tag(id):
-    tag = Tag.get_by_id(id)
-    return jsonify(tag_schema.dump(tag)) if tag else (jsonify({'message': 'Tag not found'}), 404)
+@tag_bp.route("/<tag_id>", methods=["GET"])
+def get_tag(tag_id):
+    tag = TagController.get_by_id(tag_id)
+    if not tag:
+        return jsonify({"message": "Tag not found"}), 404
+    return jsonify(tag.to_json()), 200
 
-@tag_bp.route('/tags', methods=['POST'])
+@tag_bp.route("/", methods=["POST"])
 def create_tag():
-    new_tag = Tag(**request.get_json())
-    new_tag.save_to_db()
-    return jsonify(tag_schema.dump(new_tag)), 201
+    data = request.json
+    tag = TagController.create(data)
+    return jsonify(tag.to_json()), 201
 
-@tag_bp.route('/tags/<string:id>', methods=['PUT'])
-def update_tag(id):
-    tag = Tag.get_by_id(id)
+@tag_bp.route("/<tag_id>", methods=["PUT"])
+def update_tag(tag_id):
+    tag = TagController.get_by_id(tag_id)
     if not tag:
-        return jsonify({'message': 'Tag not found'}), 404
-    for k, v in request.get_json().items():
-        setattr(tag, k, v)
-    tag.save_to_db()
-    return jsonify(tag_schema.dump(tag))
+        return jsonify({"message": "Tag not found"}), 404
+    data = request.json
+    tag = TagController.update(tag, data)
+    return jsonify(tag.to_json()), 200
 
-@tag_bp.route('/tags/<string:id>', methods=['DELETE'])
-def delete_tag(id):
-    tag = Tag.get_by_id(id)
+@tag_bp.route("/<tag_id>", methods=["DELETE"])
+def delete_tag(tag_id):
+    tag = TagController.get_by_id(tag_id)
     if not tag:
-        return jsonify({'message': 'Tag not found'}), 404
-    tag.delete_from_db()
-    return jsonify({'message': 'Tag deleted successfully'})
+        return jsonify({"message": "Tag not found"}), 404
+    TagController.delete(tag)
+    return jsonify({"message": "Tag deleted"}), 200

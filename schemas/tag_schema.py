@@ -1,4 +1,4 @@
-from . import ma
+from schemas import ma
 from models.tag_model import Tag
 
 class TagSchema(ma.SQLAlchemyAutoSchema):

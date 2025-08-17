@@ -1,4 +1,4 @@
-from . import ma
+from schemas import ma
 from models.rating_model import Rating
 
 class RatingSchema(ma.SQLAlchemyAutoSchema):

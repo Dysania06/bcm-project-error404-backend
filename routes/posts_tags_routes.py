@@ -1,28 +1,25 @@
-from flask import Blueprint, request, jsonify
-from models.posts_tags_model import PostsTags
-from schemas.posts_tags_schema import post_tag_schema, posts_tags_schema
+# File: routes/posts_tags_routes.py
+from flask import Blueprint
+from controllers.posts_tags_controller import PostsTagsController
 
-posts_tags_bp = Blueprint('posts_tags_bp', __name__)
+posts_tags_bp = Blueprint("posts_tags", __name__, url_prefix="/posts_tags")
 
-@posts_tags_bp.route('/posts_tags', methods=['GET'])
-def get_posts_tags():
-    return jsonify(posts_tags_schema.dump(PostsTags.get_all()))
+# Gán Tag vào Post
+@posts_tags_bp.route("/<int:post_id>/tags/<int:tag_id>", methods=["POST"])
+def add_tag_to_post(post_id, tag_id):
+    return PostsTagsController.add_tag_to_post(post_id, tag_id)
 
-@posts_tags_bp.route('/posts_tags/<string:post_id>/<string:tag_id>', methods=['GET'])
-def get_post_tag(post_id, tag_id):
-    post_tag = PostsTags.query.get((post_id, tag_id))
-    return jsonify(post_tag_schema.dump(post_tag)) if post_tag else (jsonify({'message': 'Post Tag not found'}), 404)
+# Xoá Tag khỏi Post
+@posts_tags_bp.route("/<int:post_id>/tags/<int:tag_id>", methods=["DELETE"])
+def remove_tag_from_post(post_id, tag_id):
+    return PostsTagsController.remove_tag_from_post(post_id, tag_id)
 
-@posts_tags_bp.route('/posts_tags', methods=['POST'])
-def create_post_tag():
-    new_post_tag = PostsTags(**request.get_json())
-    new_post_tag.save_to_db()
-    return jsonify(post_tag_schema.dump(new_post_tag)), 201
+# Lấy danh sách Tag của Post
+@posts_tags_bp.route("/<int:post_id>/tags", methods=["GET"])
+def get_tags_of_post(post_id):
+    return PostsTagsController.get_tags_of_post(post_id)
 
-@posts_tags_bp.route('/posts_tags/<string:post_id>/<string:tag_id>', methods=['DELETE'])
-def delete_post_tag(post_id, tag_id):
-    post_tag = PostsTags.query.get((post_id, tag_id))
-    if not post_tag:
-        return jsonify({'message': 'Post Tag not found'}), 404
-    post_tag.delete_from_db()
-    return jsonify({'message': 'Post Tag deleted successfully'})
+# Lấy danh sách Post theo Tag
+@posts_tags_bp.route("/tags/<int:tag_id>/posts", methods=["GET"])
+def get_posts_of_tag(tag_id):
+    return PostsTagsController.get_posts_of_tag(tag_id)

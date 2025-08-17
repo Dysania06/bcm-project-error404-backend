@@ -1,4 +1,4 @@
-from . import ma
+from schemas import ma
 from models.bookmark_model import Bookmark
 
 class BookmarkSchema(ma.SQLAlchemyAutoSchema):
@@ -6,8 +6,5 @@ class BookmarkSchema(ma.SQLAlchemyAutoSchema):
         model = Bookmark
         load_instance = True
 
-# Schema cho 1 object
 bookmark_schema = BookmarkSchema()
-
-# Schema cho list object
 bookmarks_schema = BookmarkSchema(many=True)

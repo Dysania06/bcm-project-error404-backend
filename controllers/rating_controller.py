@@ -1,49 +1,29 @@
-from flask_restful import Resource, reqparse
-from models.rating_model import Rating
+from models import Rating, db
 
-class RatingsResource(Resource):
-    def get(self):
-        ratings = Rating.get_all()
-        return {'ratings': ratings}, 200
+class RatingController:
+    @staticmethod
+    def get_all():
+        return Rating.query.all()
 
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('rating_id', type=str, required=True, help='Rating ID cannot be blank')
-        parser.add_argument('star_rating', type=int, required=True, help='Star rating cannot be blank')
-        parser.add_argument('rated_by', type=str, required=True, help='Rated by cannot be blank')
-        parser.add_argument('document_id', type=str, required=True, help='Document ID cannot be blank')
-        args = parser.parse_args()
+    @staticmethod
+    def get_by_id(rating_id):
+        return Rating.query.get(rating_id)
 
-        rating_id = Rating.create(
-            args['rating_id'],
-            args['star_rating'],
-            args['rated_by'],
-            args['document_id']
-        )
-        return {'message': 'Rating created successfully', 'id': rating_id}, 201
+    @staticmethod
+    def create(data):
+        new_rating = Rating(**data)
+        db.session.add(new_rating)
+        db.session.commit()
+        return new_rating
 
-class RatingResource(Resource):
-    def get(self, rating_id):
-        rating = Rating.get_by_id(rating_id)
-        if rating:
-            return {'rating': rating}, 200
-        return {'message': 'Rating not found'}, 404
+    @staticmethod
+    def update(rating, data):
+        for key, value in data.items():
+            setattr(rating, key, value)
+        db.session.commit()
+        return rating
 
-    def put(self, rating_id):
-        parser = reqparse.RequestParser()
-        parser.add_argument('star_rating', type=int, required=False)
-        args = parser.parse_args()
-
-        affected_rows = Rating.update(
-            rating_id,
-            args['star_rating']
-        )
-        if affected_rows:
-            return {'message': 'Rating updated successfully'}, 200
-        return {'message': 'Rating not found or no changes made'}, 404
-
-    def delete(self, rating_id):
-        affected_rows = Rating.delete(rating_id)
-        if affected_rows:
-            return {'message': 'Rating deleted successfully'}, 200
-        return {'message': 'Rating not found'}, 404
+    @staticmethod
+    def delete(rating):
+        db.session.delete(rating)
+        db.session.commit()
