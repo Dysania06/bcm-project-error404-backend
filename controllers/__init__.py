@@ -1,23 +1,17 @@
-from .user_controller import UserResource, UsersResource
-from .post_controller import PostResource, PostsResource
-from .document_controller import DocumentResource, DocumentsResource
-from .comment_controller import CommentsResource
-from .tag_controller import TagResource, TagsResource
-from .rating_controller import RatingResource, RatingsResource
-from .bookmark_controller import BookmarkResource, BookmarksResource
+from .user_controller import user_bp
+from .post_controller import post_bp
+from .document_controller import document_bp
+from .comment_controller import comment_bp
+from .tag_controller import tag_bp
+from .rating_controller import rating_bp
+from .bookmark_controller import bookmark_bp
 
 __all__ = [
-    'UserResource',
-    'UsersResource',
-    'PostResource',
-    'PostsResource',
-    'DocumentResource',
-    'DocumentsResource',
-    'CommentsResource',
-    'TagResource',
-    'TagsResource',
-    'RatingResource',
-    'RatingsResource',
-    'BookmarkResource',
-    'BookmarksResource'
+    "user_bp",
+    "post_bp",
+    "document_bp",
+    "comment_bp",
+    "tag_bp",
+    "rating_bp",
+    "bookmark_bp"
 ]
