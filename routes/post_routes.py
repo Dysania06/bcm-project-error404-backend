@@ -1,39 +1,10 @@
-from flask import Blueprint, request, jsonify
-from controllers.post_controller import PostController
-
+from flask import Blueprint
+from controllers import post_controller
+# create blueprint for post
 post_bp = Blueprint("post_bp", __name__, url_prefix="/posts")
-
-@post_bp.route("/", methods=["GET"])
-def get_posts():
-    posts = PostController.get_all()
-    return jsonify([p.to_json() for p in posts]), 200
-
-@post_bp.route("/<post_id>", methods=["GET"])
-def get_post(post_id):
-    post = PostController.get_by_id(post_id)
-    if not post:
-        return jsonify({"message": "Post not found"}), 404
-    return jsonify(post.to_json()), 200
-
-@post_bp.route("/", methods=["POST"])
-def create_post():
-    data = request.json
-    post = PostController.create(data)
-    return jsonify(post.to_json()), 201
-
-@post_bp.route("/<post_id>", methods=["PUT"])
-def update_post(post_id):
-    post = PostController.get_by_id(post_id)
-    if not post:
-        return jsonify({"message": "Post not found"}), 404
-    data = request.json
-    post = PostController.update(post, data)
-    return jsonify(post.to_json()), 200
-
-@post_bp.route("/<post_id>", methods=["DELETE"])
-def delete_post(post_id):
-    post = PostController.get_by_id(post_id)
-    if not post:
-        return jsonify({"message": "Post not found"}), 404
-    PostController.delete(post)
-    return jsonify({"message": "Post deleted"}), 200
+# call controller from routes
+post_bp.route("/", methods=["GET"])(post_controller.get_all_posts)
+post_bp.route("/<post_id>", methods=["GET"])(post_controller.get_post)
+post_bp.route("/", methods=["POST"])(post_controller.create_post)
+post_bp.route("/<post_id>", methods=["PUT"])(post_controller.update_post)
+post_bp.route("/<post_id>", methods=["DELETE"])(post_controller.delete_post)

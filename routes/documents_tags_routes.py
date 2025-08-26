@@ -1,21 +1,10 @@
-# routes/documents_tags_routes.py
-from flask import Blueprint, jsonify
-from controllers.documents_tags_controller import DocumentsTagsController
-
-documents_tags_bp = Blueprint("documents_tags", __name__, url_prefix="/documents_tags")
-
-@documents_tags_bp.route("/<int:document_id>/tags/<int:tag_id>", methods=["POST"])
-def add_tag_to_document(document_id, tag_id):
-    return jsonify(DocumentsTagsController.add_tag_to_document(document_id, tag_id))
-
-@documents_tags_bp.route("/<int:document_id>/tags/<int:tag_id>", methods=["DELETE"])
-def remove_tag_from_document(document_id, tag_id):
-    return jsonify(DocumentsTagsController.remove_tag_from_document(document_id, tag_id))
-
-@documents_tags_bp.route("/<int:document_id>/tags", methods=["GET"])
-def get_tags_of_document(document_id):
-    return jsonify(DocumentsTagsController.get_tags_of_document(document_id))
-
-@documents_tags_bp.route("/tags/<int:tag_id>/documents", methods=["GET"])
-def get_documents_of_tag(tag_id):
-    return jsonify(DocumentsTagsController.get_documents_of_tag(tag_id))
+from flask import Blueprint
+from controllers import documents_tags_controller
+# create blueprint for documents_tags
+documents_tags_bp = Blueprint("documents_tags_bp", __name__, url_prefix="/documents_tags")
+# call controller from routes
+documents_tags_bp.route("/", methods=["GET"])(documents_tags_controller.get_all_documents_tags)
+documents_tags_bp.route("/<record_id>", methods=["GET"])(documents_tags_controller.get_documents_tags)
+documents_tags_bp.route("/", methods=["POST"])(documents_tags_controller.create_documents_tags)
+documents_tags_bp.route("/<record_id>", methods=["PUT"])(documents_tags_controller.update_documents_tags)
+documents_tags_bp.route("/<record_id>", methods=["DELETE"])(documents_tags_controller.delete_documents_tags)

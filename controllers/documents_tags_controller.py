@@ -1,51 +1,60 @@
-# controllers/documents_tags_controller.py
+from flask import jsonify, request
+from models.documents_tags_model import documents_tags
 from models.models import db
-from models.document_model import Document
-from models.tag_model import Tag
 
-class DocumentsTagsController:
-    @staticmethod
-    def add_tag_to_document(document_id, tag_id):
-        document = Document.query.get(document_id)
-        tag = Tag.query.get(tag_id)
+#  get all documents_tags
+def get_all_documents_tags():
+    records = documents_tags.query.all()
+    return jsonify([r.to_json() for r in records]), 200
 
-        if not document or not tag:
-            return {"message": "Document or Tag not found"}, 404
+# get documents_tags by id
+def get_documents_tags(record_id):
+    record = documents_tags.query.get(record_id)
+    if not record:
+        return jsonify({"message": "DocumentsTags not found"}),200
+    return jsonify(record.to_json()), 200
 
-        if tag not in document.tags:
-            document.tags.append(tag)
-            db.session.commit()
+# create documents_tags
+def create_documents_tags():
+    data = request.get_json()
+    try:
+        new_record = documents_tags(
+            document_id=data.get("document_id"),
+            tag_id=data.get("tag_id")
+        )
+        db.session.add(new_record)
+        db.session.commit()
+        return jsonify({"message": "DocumentsTags created successfully", "record": new_record.to_json()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
-        return {"message": f"Tag {tag.name} added to Document {document.title}"}
+# update documents_tags
+def update_documents_tags(record_id):
+    record = documents_tags.query.get(record_id)
+    if not record:
+        return jsonify({"message": "DocumentsTags not found"}), 200
 
-    @staticmethod
-    def remove_tag_from_document(document_id, tag_id):
-        document = Document.query.get(document_id)
-        tag = Tag.query.get(tag_id)
+    data = request.get_json()
+    try:
+        record.document_id = data.get("document_id", record.document_id)
+        record.tag_id = data.get("tag_id", record.tag_id)
+        db.session.commit()
+        return jsonify({"message": "DocumentsTags updated successfully", "record": record.to_json()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
-        if not document or not tag:
-            return {"message": "Document or Tag not found"}, 404
+# delete documents_tags
+def delete_documents_tags(record_id):
+    record = documents_tags.query.get(record_id)
+    if not record:
+        return jsonify({"message": "DocumentsTags not found"}), 200
 
-        if tag in document.tags:
-            document.tags.remove(tag)
-            db.session.commit()
-
-        return {"message": f"Tag {tag.name} removed from Document {document.title}"}
-
-    @staticmethod
-    def get_tags_of_document(document_id):
-        document = Document.query.get(document_id)
-        if not document:
-            return {"message": "Document not found"}, 404
-
-        tags = [{"id": tag.id, "name": tag.name} for tag in document.tags]
-        return tags
-
-    @staticmethod
-    def get_documents_of_tag(tag_id):
-        tag = Tag.query.get(tag_id)
-        if not tag:
-            return {"message": "Tag not found"}, 404
-
-        documents = [{"id": doc.id, "title": doc.title} for doc in tag.documents]
-        return documents
+    try:
+        db.session.delete(record)
+        db.session.commit()
+        return jsonify({"message": "DocumentsTags deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500

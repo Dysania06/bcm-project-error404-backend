@@ -1,7 +1,8 @@
 import uuid
 from models.models import db
-from models.posts_tags_model import PostTag
-from models.documents_tags_model import DocumentTag
+from models.posts_tags_model import posts_tags
+from models.documents_tags_model import documents_tags
+
 
 class Tag(db.Model):
     __tablename__ = "tags"

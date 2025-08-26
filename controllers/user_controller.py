@@ -1,29 +1,32 @@
-from models import User, db
-
-class UserController:
-    @staticmethod
-    def get_all():
-        return User.query.all()
-
-    @staticmethod
-    def get_by_id(user_id):
-        return User.query.get(user_id)
-
-    @staticmethod
-    def create(data):
-        new_user = User(**data)
-        db.session.add(new_user)
-        db.session.commit()
-        return new_user
-
-    @staticmethod
-    def update(user, data):
-        for key, value in data.items():
-            setattr(user, key, value)
-        db.session.commit()
-        return user
-
-    @staticmethod
-    def delete(user):
-        db.session.delete(user)
-        db.session.commit()
+from flask import jsonify, request
+from services.user_service import UserService
+# get all users
+def get_all_users():
+    users = UserService.get_all_users()
+    return jsonify([u.to_json() for u in users]), 200
+# get user by id
+def get_user(user_id):
+    user = UserService.get_user(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 200
+    return jsonify(user.to_json()), 200
+# create user
+def create_user():
+    data = request.get_json()
+    user = UserService.create_user(data)
+    return jsonify({"message": "User created successfully", "user": user.to_json()}), 201
+# update user
+def update_user(user_id):
+    user = UserService.get_user(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 200
+    data = request.get_json()
+    updated_user = UserService.update_user(user, data)
+    return jsonify({"message": "User updated successfully", "user": updated_user.to_json()}), 200
+# delete user
+def delete_user(user_id):
+    user = UserService.get_user(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 200
+    UserService.delete_user(user)
+    return jsonify({"message": "User deleted successfully"}), 200

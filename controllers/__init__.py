@@ -1,10 +1,12 @@
-from .user_controller import UserController
-from .post_controller import PostController
-from .document_controller import DocumentController
-from .comment_controller import CommentController
-from .tag_controller import TagController
-from .rating_controller import RatingController
-from .bookmark_controller import BookmarkController
+from . import user_controller
+from . import post_controller
+from . import document_controller
+from . import comment_controller
+from . import tag_controller
+from . import rating_controller
+from . import bookmark_controller
+from . import documents_tags_controller
+from . import posts_tags_controller
 
 __all__ = [
     "UserController",
@@ -14,4 +16,6 @@ __all__ = [
     "TagController",
     "RatingController",
     "BookmarkController",
+    "DocumentsTagsController",
+    "PostsTagsController"
 ]

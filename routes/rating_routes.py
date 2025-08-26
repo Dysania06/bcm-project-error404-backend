@@ -1,39 +1,10 @@
-from flask import Blueprint, request, jsonify
-from controllers.rating_controller import RatingController
-
+from flask import Blueprint
+from controllers import rating_controller
+# create blueprint for rating
 rating_bp = Blueprint("rating_bp", __name__, url_prefix="/ratings")
-
-@rating_bp.route("/", methods=["GET"])
-def get_ratings():
-    ratings = RatingController.get_all()
-    return jsonify([r.to_json() for r in ratings]), 200
-
-@rating_bp.route("/<rating_id>", methods=["GET"])
-def get_rating(rating_id):
-    rating = RatingController.get_by_id(rating_id)
-    if not rating:
-        return jsonify({"message": "Rating not found"}), 404
-    return jsonify(rating.to_json()), 200
-
-@rating_bp.route("/", methods=["POST"])
-def create_rating():
-    data = request.json
-    rating = RatingController.create(data)
-    return jsonify(rating.to_json()), 201
-
-@rating_bp.route("/<rating_id>", methods=["PUT"])
-def update_rating(rating_id):
-    rating = RatingController.get_by_id(rating_id)
-    if not rating:
-        return jsonify({"message": "Rating not found"}), 404
-    data = request.json
-    rating = RatingController.update(rating, data)
-    return jsonify(rating.to_json()), 200
-
-@rating_bp.route("/<rating_id>", methods=["DELETE"])
-def delete_rating(rating_id):
-    rating = RatingController.get_by_id(rating_id)
-    if not rating:
-        return jsonify({"message": "Rating not found"}), 404
-    RatingController.delete(rating)
-    return jsonify({"message": "Rating deleted"}), 200
+# call controller from routes
+rating_bp.route("/", methods=["GET"])(rating_controller.get_all_ratings)
+rating_bp.route("/<rating_id>", methods=["GET"])(rating_controller.get_rating)
+rating_bp.route("/", methods=["POST"])(rating_controller.create_rating)
+rating_bp.route("/<rating_id>", methods=["PUT"])(rating_controller.update_rating)
+rating_bp.route("/<rating_id>", methods=["DELETE"])(rating_controller.delete_rating)

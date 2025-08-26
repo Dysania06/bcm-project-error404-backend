@@ -1,6 +1,7 @@
 import uuid
 from models.models import db
-from models.posts_tags_model import PostTag
+from models.posts_tags_model import posts_tags
+from datetime import datetime
 
 class Post(db.Model):
     __tablename__ = "posts"
@@ -12,7 +13,7 @@ class Post(db.Model):
     update_date = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     # Quan hệ nhiều-nhiều với Tag
-    tags = db.relationship("PostTag", back_populates="post", cascade="all, delete-orphan")
+    tags = db.relationship("Tag", secondary=posts_tags, backref="posts")
 
     # Khóa ngoại
     user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)

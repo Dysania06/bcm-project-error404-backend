@@ -1,6 +1,7 @@
 import uuid
 from models.models import db
-from models.documents_tags_model import DocumentTag
+from models.documents_tags_model import documents_tags
+from datetime import datetime
 
 class Document(db.Model):
     __tablename__ = "documents"
@@ -13,7 +14,7 @@ class Document(db.Model):
     update_date = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
      # Quan hệ nhiều-nhiều với Tag
-    tags = db.relationship("DocumentTag", back_populates="document", cascade="all, delete-orphan")
+    tags = db.relationship("Tag", secondary=documents_tags, backref="documents")
 
     # Khóa ngoại
     user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
