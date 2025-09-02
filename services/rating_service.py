@@ -1,16 +1,16 @@
 import uuid
 from models.rating_model import Rating
 from repositories.rating_repository import RatingRepository
-# Rating service class
+#   service for Rating model
 class RatingService:
     @staticmethod
     def get_all_ratings():
         return RatingRepository.get_all()
-# Get rating by id
+#   get rating by id
     @staticmethod
     def get_rating(rating_id):
         return RatingRepository.get_by_id(rating_id)
-# Create new rating
+# create a new rating
     @staticmethod
     def create_rating(data):
         new_rating = Rating(
@@ -20,13 +20,13 @@ class RatingService:
             score=data.get("score")
         )
         return RatingRepository.create(new_rating)
-# Update rating
+# update an existing rating
     @staticmethod
     def update_rating(rating, data):
         rating.score = data.get("score", rating.score)
         RatingRepository.update()
         return rating
-# Delete rating
+# delete a rating
     @staticmethod
     def delete_rating(rating):
         RatingRepository.delete(rating)

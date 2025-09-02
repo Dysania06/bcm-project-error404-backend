@@ -2,19 +2,24 @@ import uuid
 from datetime import datetime
 from models.document_model import Document
 from repositories.document_repository import DocumentRepository
-# Document service class
+
 class DocumentService:
     @staticmethod
     def get_all_documents():
-        return DocumentRepository.get_all()
-# Get document by id
+        return [doc.to_json() for doc in DocumentRepository.get_all()]
+
     @staticmethod
-    def get_document(document_id):
-        return DocumentRepository.get_by_id(document_id)
-# Create new document
+    def get_document_by_id(document_id):
+        doc = DocumentRepository.get_by_id(document_id)
+        return doc.to_json() if doc else None
+
     @staticmethod
     def create_document(data):
-        new_document = Document(
+        # Validate input
+        if not data.get("title") or not data.get("content") or not data.get("created_by"):
+            return None, "Missing required fields"
+# check for duplicate document
+        new_doc = Document(
             id=str(uuid.uuid4()),
             title=data.get("title"),
             content=data.get("content"),
@@ -22,16 +27,28 @@ class DocumentService:
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
-        return DocumentRepository.create(new_document)
-# Update document
+        DocumentRepository.create(new_doc)
+        return new_doc.to_json(), None
+# update an existing document
     @staticmethod
-    def update_document(document, data):
-        document.title = data.get("title", document.title)
-        document.content = data.get("content", document.content)
-        document.updated_at = datetime.utcnow()
+    def update_document(document_id, data):
+        doc = DocumentRepository.get_by_id(document_id)
+        if not doc:
+            return None
+# only title and content can be updated
+        if "title" in data:
+            doc.title = data["title"]
+        if "content" in data:
+            doc.content = data["content"]
+
+        doc.updated_at = datetime.utcnow()
         DocumentRepository.update()
-        return document
-# Delete document
+        return doc.to_json()
+# delete a document
     @staticmethod
-    def delete_document(document):
-        DocumentRepository.delete(document)
+    def delete_document(document_id):
+        doc = DocumentRepository.get_by_id(document_id)
+        if not doc:
+            return None
+        DocumentRepository.delete(doc)
+        return True

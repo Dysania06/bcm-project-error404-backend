@@ -1,24 +1,25 @@
-from models.post_model import Post, db
-# post repository
+from models.post_model import Post
+from models.models import db
+# repository for Post model
 class PostRepository:
     @staticmethod
     def get_all():
         return Post.query.all()
-# get post by id
+#   get post by id
     @staticmethod
     def get_by_id(post_id):
         return Post.query.get(post_id)
-# create post
+# create a new post
     @staticmethod
     def create(post):
         db.session.add(post)
         db.session.commit()
         return post
-# update post
+# update an existing post
     @staticmethod
     def update():
         db.session.commit()
-# delete post
+# delete a post
     @staticmethod
     def delete(post):
         db.session.delete(post)

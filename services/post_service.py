@@ -2,18 +2,22 @@ import uuid
 from datetime import datetime
 from models.post_model import Post
 from repositories.post_repository import PostRepository
-# Post service class
+# service for Post model
 class PostService:
     @staticmethod
     def get_all_posts():
-        return PostRepository.get_all()
-# Get post by id
+        return [p.to_json() for p in PostRepository.get_all()]
+#   get post by id
     @staticmethod
-    def get_post(post_id):
-        return PostRepository.get_by_id(post_id)
-# Create new post
+    def get_post_by_id(post_id):
+        post = PostRepository.get_by_id(post_id)
+        return post.to_json() if post else None
+# create a new post
     @staticmethod
     def create_post(data):
+        if not data.get("title") or not data.get("content") or not data.get("created_by"):
+            return None, "Missing required fields"
+
         new_post = Post(
             id=str(uuid.uuid4()),
             title=data.get("title"),
@@ -22,16 +26,28 @@ class PostService:
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
-        return PostRepository.create(new_post)
-# Update post
+        PostRepository.create(new_post)
+        return new_post.to_json(), None
+#   update an existing post
     @staticmethod
-    def update_post(post, data):
-        post.title = data.get("title", post.title)
-        post.content = data.get("content", post.content)
+    def update_post(post_id, data):
+        post = PostRepository.get_by_id(post_id)
+        if not post:
+            return None
+
+        if "title" in data:
+            post.title = data["title"]
+        if "content" in data:
+            post.content = data["content"]
+
         post.updated_at = datetime.utcnow()
         PostRepository.update()
-        return post
-# Delete post
+        return post.to_json()
+#   delete a post
     @staticmethod
-    def delete_post(post):
+    def delete_post(post_id):
+        post = PostRepository.get_by_id(post_id)
+        if not post:
+            return None
         PostRepository.delete(post)
+        return True

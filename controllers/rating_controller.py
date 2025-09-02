@@ -8,7 +8,7 @@ def get_all_ratings():
 def get_rating(rating_id):
     rating = RatingService.get_rating(rating_id)
     if not rating:
-        return jsonify({"message": "Rating not found"}), 200
+        return jsonify({"message": "Rating not found"}), 404
     return jsonify(rating.to_json()), 200
 # create rating
 def create_rating():
@@ -19,7 +19,7 @@ def create_rating():
 def update_rating(rating_id):
     rating = RatingService.get_rating(rating_id)
     if not rating:
-        return jsonify({"message": "Rating not found"}), 200
+        return jsonify({"message": "Rating not found"}), 404
     data = request.get_json()
     updated_rating = RatingService.update_rating(rating, data)
     return jsonify({"message": "Rating updated successfully", "rating": updated_rating.to_json()}), 200
@@ -27,6 +27,6 @@ def update_rating(rating_id):
 def delete_rating(rating_id):
     rating = RatingService.get_rating(rating_id)
     if not rating:
-        return jsonify({"message": "Rating not found"}), 200
+        return jsonify({"message": "Rating not found"}), 404
     RatingService.delete_rating(rating)
     return jsonify({"message": "Rating deleted successfully"}), 200

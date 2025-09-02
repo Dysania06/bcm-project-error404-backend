@@ -2,27 +2,27 @@ import uuid
 from models.models import db
 from models.posts_tags_model import posts_tags
 from datetime import datetime
-
+# Post model
 class Post(db.Model):
     __tablename__ = "posts"
-
+# Columns
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     update_date = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
-    # Quan hệ nhiều-nhiều với Tag
+    # relationship many-to-many with Tag
     tags = db.relationship("Tag", secondary=posts_tags, backref="posts")
 
-    # Khóa ngoại
+    # foreign key
     user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
 
-    # Quan hệ
+    # relationships
     comments = db.relationship("Comment", backref="post", lazy=True, cascade="all, delete-orphan")
     ratings = db.relationship("Rating", backref="post", lazy=True, cascade="all, delete-orphan")
     tags = db.relationship("Tag", secondary="posts_tags", backref="posts", lazy="joined")
-
+    # converts to JSON
     def to_json(self):
         return {
             "id": self.id,

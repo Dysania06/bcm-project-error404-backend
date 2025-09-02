@@ -1,59 +1,32 @@
-from flask import jsonify, request
-from models.post_model import Post, db
-import uuid
-from datetime import datetime
+from flask import request, jsonify
+from services.post_service import PostService
 # get all posts
 def get_all_posts():
-    posts = Post.query.all()
-    return jsonify([post.to_json() for post in posts]), 200
+    posts = PostService.get_all_posts()
+    return jsonify(posts), 200
 # get post by id
 def get_post(post_id):
-    post = Post.query.get(post_id)
+    post = PostService.get_post_by_id(post_id)
     if not post:
-        return jsonify({"message": "Post not found"}), 200
-    return jsonify(post.to_json()), 200
+        return jsonify({"message": "Post not found"}), 404
+    return jsonify(post), 200
 # create post
 def create_post():
-    data = request.json
-    try:
-        new_post = Post(
-            id=str(uuid.uuid4()),
-            title=data.get("title"),
-            content=data.get("content"),
-            created_by=data.get("created_by"),
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
-        )
-        db.session.add(new_post)
-        db.session.commit()
-        return jsonify({"message": "Post created successfully", "post": new_post.to_json()}), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+    data = request.get_json()
+    new_post, error = PostService.create_post(data)
+    if error:
+        return jsonify({"message": error}), 400
+    return jsonify({"message": "Post created successfully", "post": new_post}), 201
 # update post
 def update_post(post_id):
-    data = request.json
-    post = Post.query.get(post_id)
-    if not post:
-        return jsonify({"message": "Post not found"}), 200
-    try:
-        post.title = data.get("title", post.title)
-        post.content = data.get("content", post.content)
-        post.updated_at = datetime.utcnow()
-        db.session.commit()
-        return jsonify({"message": "Post updated successfully", "post": post.to_json()}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+    data = request.get_json()
+    updated_post = PostService.update_post(post_id, data)
+    if not updated_post:
+        return jsonify({"message": "Post not found"}), 404
+    return jsonify({"message": "Post updated successfully", "post": updated_post}), 200
 # delete post
 def delete_post(post_id):
-    post = Post.query.get(post_id)
-    if not post:
-        return jsonify({"message": "Post not found"}), 200
-    try:
-        db.session.delete(post)
-        db.session.commit()
-        return jsonify({"message": "Post deleted successfully"}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+    deleted = PostService.delete_post(post_id)
+    if not deleted:
+        return jsonify({"message": "Post not found"}), 404
+    return jsonify({"message": "Post deleted successfully"}), 200
